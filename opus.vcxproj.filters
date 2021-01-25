@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{500ba5c3-6295-4f4f-ab94-e1d7543799bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\main">
+      <UniqueIdentifier>{3dbd082f-6915-42ba-b172-d1d23a008775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\cudaUtil">
+      <UniqueIdentifier>{f7c9fa5a-fc3f-48a9-a6a3-6be1f7cbca5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\fileio">
+      <UniqueIdentifier>{b03155d2-7747-456e-826f-fa3567adf198}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cudaUtil\gaussian.hpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\main_cudaConvolution3D.cpp">
+      <Filter>src\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\gaussian.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cudaUtil\cudaProps.cpp">
+      <Filter>src\cudaUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fileio\xt_file.cpp">
+      <Filter>src\fileio</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\cudaUtil\cudaDataToNormal.cu">
+      <Filter>src\cudaUtil</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\cudaUtil\cudaConvolution_Shared_Memory_Symbol_Mask_3D_Float_Valid_Kernel.cu">
+      <Filter>src\cudaUtil</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\cudaUtil\cudaConvolution_Shared_Memory_3D_Float_Valid_Kernel.cu">
+      <Filter>src\cudaUtil</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\cudaUtil\cudaConvolution_3D_Float_Valid_Kernel.cu">
+      <Filter>src\cudaUtil</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\cudaUtil\cudaGradient_3D_Float_Valid_Kernel.cu">
+      <Filter>src\cudaUtil</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\cudaUtil\cudaDataToNormal.h">
+      <Filter>src\cudaUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cudaUtil\gaussian.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cudaUtil\cudaProps.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cudaUtil\cudaConvolution_Shared_Memory_Symbol_Mask_3D_Float_Valid_Kernel.h">
+      <Filter>src\cudaUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cudaUtil\cudaConvolution_Shared_Memory_3D_Float_Valid_Kernel.h">
+      <Filter>src\cudaUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cudaUtil\cudaConvolution_3D_Float_Valid_Kernel.h">
+      <Filter>src\cudaUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fileio\xt_file.h">
+      <Filter>src\fileio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cudaUtil\cudaGradient_3D_Float_Valid_Kernel.h">
+      <Filter>src\cudaUtil</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
