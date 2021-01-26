@@ -17,8 +17,10 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\main\gaussian.cpp" />
     <ClCompile Include="src\main\main_cudaConvolution3D.cpp" />
+    <ClCompile Include="src\main\main_cudaGradient.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="src\cudaUtil\cudaConvolution_2Inputs_3D_Float_Valid_Kernel.cu" />
     <CudaCompile Include="src\cudaUtil\cudaConvolution_3D_Float_Valid_Kernel.cu" />
     <CudaCompile Include="src\cudaUtil\cudaConvolution_Shared_Memory_3D_Float_Valid_Kernel.cu" />
     <CudaCompile Include="src\cudaUtil\cudaConvolution_Shared_Memory_Symbol_Mask_3D_Float_Valid_Kernel.cu" />
@@ -26,6 +28,7 @@
     <CudaCompile Include="src\cudaUtil\cudaGradient_3D_Float_Valid_Kernel.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\cudaUtil\cudaConvolution_2Inputs_3D_Float_Valid_Kernel.h" />
     <ClInclude Include="src\cudaUtil\cudaConvolution_3D_Float_Valid_Kernel.h" />
     <ClInclude Include="src\cudaUtil\cudaConvolution_Shared_Memory_3D_Float_Valid_Kernel.h" />
     <ClInclude Include="src\cudaUtil\cudaConvolution_Shared_Memory_Symbol_Mask_3D_Float_Valid_Kernel.h" />

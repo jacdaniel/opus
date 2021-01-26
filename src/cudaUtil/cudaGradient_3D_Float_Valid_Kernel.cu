@@ -10,7 +10,7 @@ void cudaGradient_3D_Float_Valid(float* d_in, int dimx, int dimy, int dimz, floa
 	int dx = dimx - LPMaskSize + 1, dy = dimy - LPMaskSize + 1, dz = dimz - LPMaskSize + 1;
 
 	cudaConvolution_3D_Float_Valid_Z(d_in, dimx, dimy, dimz,  d_LPMask, LPMaskSize, d_tmp);
-
+		
 	cudaConvolution_3D_Float_Valid_Y(d_tmp, dimx, dimy, dz, d_LPMask, LPMaskSize, d_tmp2);
 	cudaConvolution_3D_Float_Valid_X(d_tmp2, dimx, dy, dz, d_HPMask, HPMaskSize, d_gx);
 

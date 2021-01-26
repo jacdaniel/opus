@@ -33,6 +33,7 @@
     <ClCompile Include="src\fileio\xt_file.cpp">
       <Filter>src\fileio</Filter>
     </ClCompile>
+    <ClCompile Include="src\main\main_cudaGradient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\cudaUtil\cudaDataToNormal.cu">
@@ -50,6 +51,7 @@
     <CudaCompile Include="src\cudaUtil\cudaGradient_3D_Float_Valid_Kernel.cu">
       <Filter>src\cudaUtil</Filter>
     </CudaCompile>
+    <CudaCompile Include="src\cudaUtil\cudaConvolution_2Inputs_3D_Float_Valid_Kernel.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cudaUtil\cudaDataToNormal.h">
@@ -76,5 +78,6 @@
     <ClInclude Include="src\cudaUtil\cudaGradient_3D_Float_Valid_Kernel.h">
       <Filter>src\cudaUtil</Filter>
     </ClInclude>
+    <ClInclude Include="src\cudaUtil\cudaConvolution_2Inputs_3D_Float_Valid_Kernel.h" />
   </ItemGroup>
 </Project>

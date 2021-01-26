@@ -1,13 +1,13 @@
 
 #include <cuda_runtime.h>
 #include <cuda.h>
-#include <cudaConvolution_3D_Float_Valid_Kernel.h>
+#include <cudaConvolution_2Inputs_3D_Float_Valid_Kernel.h>
 
 // ========================================================
 // KERNEL
 // ========================================================
 
-__global__ void cudaConvolution_3D_Float_Valid_X_Kernel(float* in, int dimx, int dimy, int dimz, float* mask, int size2, float* out)
+__global__ void cudaConvolution_2Inputs_3D_Float_Valid_X_Kernel(float* in1, float *in2, int dimx, int dimy, int dimz, float* mask, int size2, float* out)
 {
 	const int x = blockIdx.x * blockDim.x + threadIdx.x,
 		y = blockIdx.y * blockDim.y + threadIdx.y,
@@ -16,19 +16,19 @@ __global__ void cudaConvolution_3D_Float_Valid_X_Kernel(float* in, int dimx, int
 	// in += baseZ * (dimx * dimy) + baseY * dimx + baseX;
 	// out += baseZ * ((dimx - 2 * size2) * dimy) + baseY * (dimx - 2 * size2) + baseX - size2;
 
-	if (x >= size2 && x < dimx-size2 && y < dimy && z < dimz)
+	if (x >= size2 && x < dimx - size2 && y < dimy && z < dimz)
 	{
 		float sum = 0.0f;
 #pragma unroll
-			for (int i = -size2; i <= size2; i++)
-				sum += mask[size2 - i] * in[(long)dimx*dimy* z+(long)dimx*y+(long)x+i];
-			out[(long)z * ((dimx - 2 * size2) * dimy) + (long)y * (dimx - 2 * size2) + (long)x-size2] = sum;
+		for (int i = -size2; i <= size2; i++)
+			sum += mask[size2 - i] * ( in1[(long)dimx * dimy * z + (long)dimx * y + (long)x + i] * in2[(long)dimx * dimy * z + (long)dimx * y + (long)x + i]);
+		out[(long)z * ((dimx - 2 * size2) * dimy) + (long)y * (dimx - 2 * size2) + (long)x - size2] = sum;
 	}
 }
 
 
 
-__global__ void cudaConvolution_3D_Float_Valid_Y_Kernel(float* in, int dimx, int dimy, int dimz, float* mask, int size2, float* out)
+__global__ void cudaConvolution_2Inputs_3D_Float_Valid_Y_Kernel(float* in1, float *in2, , int dimx, int dimy, int dimz, float* mask, int size2, float* out)
 {
 	const int x = blockIdx.x * blockDim.x + threadIdx.x,
 		y = blockIdx.y * blockDim.y + threadIdx.y,
@@ -39,13 +39,13 @@ __global__ void cudaConvolution_3D_Float_Valid_Y_Kernel(float* in, int dimx, int
 		float sum = 0.0f;
 #pragma unroll
 		for (int i = -size2; i <= size2; i++)
-			sum += mask[size2 - i] * in[dimx * dimy * z + dimx * (y+i) + x];
-		out[z * (dimx * (dimy-2*size2)) + (y-size2) *dimx + x] = sum;
+			sum += mask[size2 - i] * ( in1[dimx * dimy * z + dimx * (y + i) + x] * in2[dimx * dimy * z + dimx * (y + i) + x] );
+		out[z * (dimx * (dimy - 2 * size2)) + (y - size2) * dimx + x] = sum;
 	}
 }
 
 
-__global__ void cudaConvolution_3D_Float_Valid_Z_Kernel(float* in, int dimx, int dimy, int dimz, float* mask, int size2, float* out)
+__global__ void cudaConvolution_2Inputs_3D_Float_Valid_Z_Kernel(float* in1, float *in2, , int dimx, int dimy, int dimz, float* mask, int size2, float* out)
 {
 	const int x = blockIdx.x * blockDim.x + threadIdx.x,
 		y = blockIdx.y * blockDim.y + threadIdx.y,
@@ -56,35 +56,35 @@ __global__ void cudaConvolution_3D_Float_Valid_Z_Kernel(float* in, int dimx, int
 		float sum = 0.0f;
 #pragma unroll
 		for (int i = -size2; i <= size2; i++)
-			sum += mask[size2 - i] * in[dimx * dimy * (z+i) + dimx * y + x];
-		out[(z-size2) * dimx * dimy + y * dimx + x] = sum;
+			sum += mask[size2 - i] * ( in1[dimx * dimy * (z + i) + dimx * y + x] * in2[dimx * dimy * (z + i) + dimx * y + x] );
+		out[(z - size2) * dimx * dimy + y * dimx + x] = sum;
 	}
 }
 
 
 
 
-void cudaConvolution_3D_Float_Valid_X(float* d_in, int dimx, int dimy, int dimz, float* d_mask, int maskSize, float* d_out)
+void cudaConvolution_2Inputs_3D_Float_Valid_X(float* d_in1, float *d_in2, int dimx, int dimy, int dimz, float* d_mask, int maskSize, float* d_out)
 {
 	dim3 block(10, 10, 10);
 	dim3 grid((dimx - 1) / block.x + 1, (dimy - 1) / block.y + 1, (dimz - 1) / block.z + 1);
-	cudaConvolution_3D_Float_Valid_X_Kernel << <grid, block >> > (d_in, dimx, dimy, dimz, d_mask, maskSize / 2, d_out);
+	cudaConvolution_2Inputs_3D_Float_Valid_X_Kernel << <grid, block >> > (d_in1, d_in2, dimx, dimy, dimz, d_mask, maskSize / 2, d_out);
 	cudaThreadSynchronize();
 }
 
-void cudaConvolution_3D_Float_Valid_Y(float* d_in, int dimx, int dimy, int dimz, float* d_mask, int maskSize, float* d_out)
+void cudaConvolution_2Inputs_3D_Float_Valid_Y(float* d_in1, float *d_in2, int dimx, int dimy, int dimz, float* d_mask, int maskSize, float* d_out)
 {
 	dim3 block(10, 10, 10);
 	dim3 grid((dimx - 1) / block.x + 1, (dimy - 1) / block.y + 1, (dimz - 1) / block.z + 1);
-	cudaConvolution_3D_Float_Valid_Y_Kernel << <grid, block >> > (d_in, dimx, dimy, dimz, d_mask, maskSize / 2, d_out);
+	cudaConvolution_2Inputs_3D_Float_Valid_Y_Kernel << <grid, block >> > (d_in1, d_in2, dimx, dimy, dimz, d_mask, maskSize / 2, d_out);
 	cudaThreadSynchronize();
 }
 
-void cudaConvolution_3D_Float_Valid_Z(float* d_in, int dimx, int dimy, int dimz, float* d_mask, int maskSize, float* d_out)
+void cudaConvolution_2Inputs_3D_Float_Valid_Z(float* d_in1, float *d_in2, int dimx, int dimy, int dimz, float* d_mask, int maskSize, float* d_out)
 {
 	dim3 block(10, 10, 10);
 	dim3 grid((dimx - 1) / block.x + 1, (dimy - 1) / block.y + 1, (dimz - 1) / block.z + 1);
-	cudaConvolution_3D_Float_Valid_Z_Kernel << <grid, block >> > (d_in, dimx, dimy, dimz, d_mask, maskSize / 2, d_out);
+	cudaConvolution_2Inputs_3D_Float_Valid_Z_Kernel << <grid, block >> > (d_in1, d_in2, dimx, dimy, dimz, d_mask, maskSize / 2, d_out);
 	cudaThreadSynchronize();
 }
 
