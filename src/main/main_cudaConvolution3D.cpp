@@ -12,7 +12,7 @@
 #include <xt_file.h>
 #include <cudaProps.h>
 
-static void dataRead(char* filename, int x1, int x2, int y1, int y2, int z1, int z2, float* out)
+void dataRead(char* filename, int x1, int x2, int y1, int y2, int z1, int z2, float* out)
 {
 	XT_FILE* p = new XT_FILE();
 	p->openForRead(filename);

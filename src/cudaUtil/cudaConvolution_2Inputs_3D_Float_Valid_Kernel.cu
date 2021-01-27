@@ -28,7 +28,7 @@ __global__ void cudaConvolution_2Inputs_3D_Float_Valid_X_Kernel(float* in1, floa
 
 
 
-__global__ void cudaConvolution_2Inputs_3D_Float_Valid_Y_Kernel(float* in1, float *in2, , int dimx, int dimy, int dimz, float* mask, int size2, float* out)
+__global__ void cudaConvolution_2Inputs_3D_Float_Valid_Y_Kernel(float* in1, float *in2, int dimx, int dimy, int dimz, float* mask, int size2, float* out)
 {
 	const int x = blockIdx.x * blockDim.x + threadIdx.x,
 		y = blockIdx.y * blockDim.y + threadIdx.y,
@@ -45,7 +45,7 @@ __global__ void cudaConvolution_2Inputs_3D_Float_Valid_Y_Kernel(float* in1, floa
 }
 
 
-__global__ void cudaConvolution_2Inputs_3D_Float_Valid_Z_Kernel(float* in1, float *in2, , int dimx, int dimy, int dimz, float* mask, int size2, float* out)
+__global__ void cudaConvolution_2Inputs_3D_Float_Valid_Z_Kernel(float* in1, float *in2, int dimx, int dimy, int dimz, float* mask, int size2, float* out)
 {
 	const int x = blockIdx.x * blockDim.x + threadIdx.x,
 		y = blockIdx.y * blockDim.y + threadIdx.y,
