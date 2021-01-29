@@ -3,6 +3,7 @@
 #include <math.h>
 #include <cuda_runtime.h>
 
+#include <util0.h>
 #include <gaussian.hpp>
 #include <cudaGradient_3D_Float_Valid_Kernel.h>
 #include <cudaGradientToTensor_3D_Float_Valid_Kernel.h>
@@ -26,6 +27,7 @@ void syntheticDataCreate_v1(int dimx, int dimy, int dimz, float* data)
 			for (long x = 0; x < dimx; x++)
 			{
 				double xx = (double)x / dimx;
+				py = sin(2*PI*yy);
 				double arg = fx * (xx - py * yy - pz * zz);
 				data[dimx * dimy * z + dimx * y + x] = 255.0f * sin(2.0 * PI * arg);
 			}
@@ -69,7 +71,7 @@ int main_cudaGradient(int argc, char** argv)
 
 	// in[dimx * dimy * 50 + dimx * 50 + 50] = 1.0;
 	dataRead(seismicFilename, 0, dimx - 1, 0, dimy - 1, 0, dimz - 1, in);
-	// syntheticDataCreate_v1(dimx, dimy, dimz, in);
+	syntheticDataCreate_v1(dimx, dimy, dimz, in);
 	cudaMemcpy(d_in, in, size0 * sizeof(float), cudaMemcpyHostToDevice);
 
 	FILE* pFile = fopen("d:\\in.raw", "wb");
@@ -123,36 +125,59 @@ int main_cudaGradient(int argc, char** argv)
 	// ===========================================================================
 	float* d_nx = nullptr, * d_ny = nullptr, * d_nz = nullptr;
 	long size2 = (long)ddx * ddy * ddz;
-	cudaMalloc((void**)&d_nx, size2 * sizeof(float));
-	cudaMalloc((void**)&d_ny, size2 * sizeof(float));
-	cudaMalloc((void**)&d_nz, size2 * sizeof(float));
+
+	int ret0 = CUDAMALLOCSAFE(&d_nx, size2 * sizeof(float));
+	ret0 = CUDAMALLOCSAFE(&d_ny, size2 * sizeof(float));
+	ret0 = CUDAMALLOCSAFE(&d_nz, size2 * sizeof(float));
 
 	cudaTensorToPrincipalEigenVector_3D_Float(d_Txx, d_Txy, d_Txz, d_Tyy, d_Tyz, d_Tzz, (long)ddx*ddy*ddz, d_nx, d_ny, d_nz);
 
-	cudaMemcpy(in, d_nx, size2 * sizeof(float), cudaMemcpyDeviceToHost);
-	float nnx = in[ddx * ddy * (ddz / 2) + ddx * (ddy / 2) + ddx / 2];
+	float* nx = nullptr, * ny = nullptr, * nz = nullptr;;
+	int ret = CALLOCSAFE(&nx, (size_t)size2, float);
+	ret = CALLOCSAFE(&ny, (size_t)size2, float);
+	ret = CALLOCSAFE(&nz, (size_t)size2, float);
+
+	cudaMemcpy(nx, d_nx, size2 * sizeof(float), cudaMemcpyDeviceToHost);
+	float nnx = nx[ddx * ddy * (ddz / 2) + ddx * (ddy / 2) + ddx / 2];
 	pFile = fopen("d:\\nx.raw", "wb");
-	fwrite(in, sizeof(float), (size_t)ddx * ddy * ddz, pFile);
+	fwrite(nx, sizeof(float), (size_t)ddx * ddy * ddz, pFile);
 	fclose(pFile);
 
-	cudaMemcpy(in, d_ny, size2 * sizeof(float), cudaMemcpyDeviceToHost);
-	float nny = in[ddx * ddy * (ddz / 2) + ddx * (ddy / 2) + ddx / 2];
+	cudaMemcpy(ny, d_ny, size2 * sizeof(float), cudaMemcpyDeviceToHost);
+	float nny = ny[ddx * ddy * (ddz / 2) + ddx * (ddy / 2) + ddx / 2];
 	pFile = fopen("d:\\ny.raw", "wb");
-	fwrite(in, sizeof(float), (size_t)ddx * ddy * ddz, pFile);
+	fwrite(ny, sizeof(float), (size_t)ddx * ddy * ddz, pFile);
 	fclose(pFile);
 
-	cudaMemcpy(in, d_nz, size2 * sizeof(float), cudaMemcpyDeviceToHost);
-	float nnz = in[ddx * ddy * (ddz / 2) + ddx * (ddy / 2) + ddx / 2];
+	cudaMemcpy(nz, d_nz, size2 * sizeof(float), cudaMemcpyDeviceToHost);
+	float nnz = nz[ddx * ddy * (ddz / 2) + ddx * (ddy / 2) + ddx / 2];
 	pFile = fopen("d:\\nz.raw", "wb");
-	fwrite(in, sizeof(float), (size_t)ddx* ddy* ddz, pFile);
+	fwrite(nz, sizeof(float), (size_t)ddx* ddy* ddz, pFile);
 	fclose(pFile);
 
 	float pxy = -nny / nnx;
 	float pxz = -nnz / nnx;
 
 	fprintf(stderr, "dipx: %f\ndipz: %f\n", pxy, pxz);
+
+
+	for (long n = 0; n < size2; n++)
+	{
+		ny[n] /= -nx[n];
+		nz[n] /= -nx[n];
+	}
+
+	pFile = fopen("d:\\dipx.raw", "wb");
+	fwrite(ny, sizeof(float), (size_t)ddx * ddy * ddz, pFile);
+	fclose(pFile);
+
+	pFile = fopen("d:\\dipz.raw", "wb");
+	fwrite(nz, sizeof(float), (size_t)ddx * ddy * ddz, pFile);
+	fclose(pFile);
+
+
 	
-
-
+	FREESAFE(nx)
+	CUDAFREESAFE(&d_nx)
 	return 0;
 }
