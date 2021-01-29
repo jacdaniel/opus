@@ -8,9 +8,11 @@
 typedef struct _OrientationEstimationParam
 {
 	void* d_in, * d_out;
-	void* d_gx, * d_gy, * d_gz, ** d_Tii;
+	// void* d_gx, * d_gy, * d_gz;
+	void ** d_Tii, ** d_gi;
 	// *d_Txx, * d_Txy, * d_Txz, * d_Tyy, * d_Tyz, * d_Tzz;
 	void* d_nx, * d_ny, * d_nz;
+	void* d_ni;
 	void* d_temp1, * d_temp2;
 	float* d_LPGrad, * d_HPGrad, * d_LPTens, *lpGrad, *hpGrad, *lpTens;
 	long lpGradSize, hpGradSize, lpTensSize;
@@ -23,6 +25,8 @@ class OrientationEstimation
 {
 public:
 	enum TensorIdx {ID_TXX, ID_TXY, ID_TXZ, ID_TYY, ID_TYZ, ID_TZZ};
+	enum GradientIdx { ID_GX, ID_GY, ID_GZ };
+	enum NormalIdx { ID_NX, ID_NY, ID_NZ };
 private:
 	void* dataIn, * dataOut;
 	int dataInSize[3];

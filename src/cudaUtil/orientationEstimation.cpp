@@ -96,9 +96,12 @@ int OrientationEstimation::paramInit(OrientationEstimationParam **param)
 	(*param)->size0 = (size_t)dataInSize[0] * dataInSize[1] * dataInSize[2];
 	(*param)->gradSize0 = (size_t)(*param)->gradSize[0] * (size_t)(*param)->gradSize[1] * (size_t)(*param)->gradSize[2];
 	(*param)->tensSize0 = (size_t)(*param)->tensSize[0] * (size_t)(*param)->tensSize[1] * (size_t)(*param)->tensSize[2];
-	ret0 = CUDAMALLOCSAFE(&(*param)->d_gx, (*param)->gradSize0 * sizeof(float));
-	ret0 = CUDAMALLOCSAFE(&(*param)->d_gy, (*param)->gradSize0 * sizeof(float));
-	ret0 = CUDAMALLOCSAFE(&(*param)->d_gz, (*param)->gradSize0 * sizeof(float));
+
+	ret = CALLOCSAFE(&(*param)->d_gi, 3, float*);
+	for (int i = 0; i < 3; i++)
+	{
+		ret0 = CUDAMALLOCSAFE(&(*param)->d_gi[i], (*param)->gradSize0 * sizeof(float));
+	}
 
 	ret = CALLOCSAFE(&(*param)->d_Tii, 6, float*);
 	for (int i = 0; i < 6; i++)
@@ -106,16 +109,10 @@ int OrientationEstimation::paramInit(OrientationEstimationParam **param)
 		ret0 = CUDAMALLOCSAFE(&(*param)->d_Tii[i], (*param)->tensSize0 * sizeof(float));
 	}
 
-	//ret0 = CUDAMALLOCSAFE(&(*param)->d_Txy, (*param)->tensSize0 * sizeof(float));
-	//ret0 = CUDAMALLOCSAFE(&(*param)->d_Txz, (*param)->tensSize0 * sizeof(float));
-	//ret0 = CUDAMALLOCSAFE(&(*param)->d_Tyy, (*param)->tensSize0 * sizeof(float));
-	//ret0 = CUDAMALLOCSAFE(&(*param)->d_Tyz, (*param)->tensSize0 * sizeof(float));
-	//ret0 = CUDAMALLOCSAFE(&(*param)->d_Tzz, (*param)->tensSize0 * sizeof(float));
 	ret0 = CUDAMALLOCSAFE(&(*param)->d_nx, (*param)->tensSize0 * sizeof(float));
 	ret0 = CUDAMALLOCSAFE(&(*param)->d_ny, (*param)->tensSize0 * sizeof(float));
 	ret0 = CUDAMALLOCSAFE(&(*param)->d_nz, (*param)->tensSize0 * sizeof(float));
-	// ret0 = CUDAMALLOCSAFE(&(*param)->d_dipxy, (*param)->tensSize0 * sizeof(float));
-	// ret0 = CUDAMALLOCSAFE(&(*param)->d_dipxz, (*param)->tensSize0 * sizeof(float));
+
 	ret0 = CUDAMALLOCSAFE(&(*param)->d_temp1, (*param)->size0 * sizeof(float));
 	ret0 = CUDAMALLOCSAFE(&(*param)->d_temp2, (*param)->size0 * sizeof(float));
 
@@ -132,22 +129,18 @@ int OrientationEstimation::paramInit(OrientationEstimationParam **param)
 int OrientationEstimation::paramRelease(OrientationEstimationParam** param)
 {
 	if (param == nullptr || *param == nullptr) return SUCCESS;
-	CUDAFREESAFE(&(*param)->d_gx)
-	CUDAFREESAFE(&(*param)->d_gy)
-	CUDAFREESAFE(&(*param)->d_gz)
+	for (int i = 0; i < 3; i++)
+	{
+		CUDAFREESAFE(&(*param)->d_gi[i])
+	}
+	FREESAFE((*param)->d_gi)
+
 	for (int i = 0; i < 6; i++)
 	{
 		CUDAFREESAFE(&(*param)->d_Tii[i])
 	}
 	FREESAFE((*param)->d_Tii)
-	/*
-		CUDAFREESAFE(&(*param)->d_Txx)
-	CUDAFREESAFE(&(*param)->d_Txy)
-	CUDAFREESAFE(&(*param)->d_Txz)
-	CUDAFREESAFE(&(*param)->d_Tyy)
-	CUDAFREESAFE(&(*param)->d_Tyz)
-	CUDAFREESAFE(&(*param)->d_Tzz)
-	*/
+	
 	CUDAFREESAFE(&(*param)->d_nx)
 	CUDAFREESAFE(&(*param)->d_ny)
 	CUDAFREESAFE(&(*param)->d_nz)
@@ -173,9 +166,9 @@ void OrientationEstimation::run()
 		param->d_LPGrad, param->lpGradSize, 
 		param->d_HPGrad, param->hpGradSize, 
 		(float*)param->d_temp1, (float*)param->d_temp2, 
-		(float*)param->d_gx, (float*)param->d_gy, (float*)param->d_gz);
+		(float*)param->d_gi[ID_GX], (float*)param->d_gi[ID_GY], (float*)param->d_gi[ID_GZ]);
 
-	cudaGradientToTensor_3D_Float_Valid_Kernel((float*)param->d_gx, (float*)param->d_gy, (float*)param->d_gz, param->gradSize[0], param->gradSize[1], param->gradSize[2],
+	cudaGradientToTensor_3D_Float_Valid_Kernel((float*)param->d_gi[ID_GX], (float*)param->d_gi[ID_GY], (float*)param->d_gi[ID_GZ], param->gradSize[0], param->gradSize[1], param->gradSize[2],
 		param->d_LPTens, param->lpTensSize,
 		(float*)param->d_temp1, (float*)param->d_temp2,
 		(float*)param->d_Tii[ID_TXX], (float*)param->d_Tii[ID_TXY], (float*)param->d_Tii[ID_TXZ],
